@@ -1,12 +1,63 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
 import './index.css';
-import App from './App';
-import * as serviceWorker from './serviceWorker';
+import { createStore, replaceReducer } from 'redux';
 
-ReactDOM.render(<App />, document.getElementById('root'));
+const initialState = {
+    tasks : []
+};
 
-// If you want your app to work offline and load faster, you can change
-// unregister() to register() below. Note this comes with some pitfalls.
-// Learn more about service workers: https://bit.ly/CRA-PWA
-serviceWorker.unregister();
+function addReducer(state = initialState, action) {
+    switch (action.type) {
+    case 'ADD_TASK':
+        return {
+            ...state,
+            tasks: state.tasks.concat([action.payload.task])
+        };
+    default:
+        return state;
+    }
+}
+
+function resetReducer(state = initialState, action) {
+    switch (action.type) {
+    case 'RESET_TASK':
+        return {
+            ...state,
+            tasks: []
+        };
+    default:
+        return state;
+    }
+}
+
+const store = createStore(addReducer);
+
+const addTask = (task) => ({
+    type: 'ADD_TASK',
+    payload: {
+        task
+    }
+});
+
+function handleChange() {
+    console.log(store.getState());
+}
+
+const unsubscribe = store.subscribe(handleChange);
+// unsubscribe() を実行すると解除される
+
+console.log("START !!");
+console.log(store.getState());
+
+console.log("dispatch addTask");
+store.dispatch(addTask('Store を学ぶ'));
+
+store.replaceReducer(resetReducer);
+console.log(store.getState());
+
+const resetTask = () => ({
+    type: 'RESET_TASK'
+});
+store.dispatch(resetTask());
+console.log(store.getState());
+
+console.log("END !!");
