@@ -1,12 +1,19 @@
-import './index.css';
+import React from 'react';
+import { render } from 'react-dom';
 import { createStore, replaceReducer } from 'redux';
 
 const initialState = {
+    task: '',
     tasks : []
 };
 
-function addReducer(state = initialState, action) {
+function tasksReducer(state = initialState, action) {
     switch (action.type) {
+    case 'INPUT_TASK':
+        return {
+            ...state,
+            task: action.payload.task
+        };
     case 'ADD_TASK':
         return {
             ...state,
@@ -17,19 +24,14 @@ function addReducer(state = initialState, action) {
     }
 }
 
-function resetReducer(state = initialState, action) {
-    switch (action.type) {
-    case 'RESET_TASK':
-        return {
-            ...state,
-            tasks: []
-        };
-    default:
-        return state;
-    }
-}
+const store = createStore(tasksReducer);
 
-const store = createStore(addReducer);
+const inputTask = (task) => ({
+    type: 'INPUT_TASK',
+    payload: {
+        task
+    }
+});
 
 const addTask = (task) => ({
     type: 'ADD_TASK',
@@ -38,26 +40,39 @@ const addTask = (task) => ({
     }
 });
 
+const resetTask = () => ({
+    type: 'RESET_TASK'
+});
+
 function handleChange() {
     console.log(store.getState());
 }
 
-const unsubscribe = store.subscribe(handleChange);
-// unsubscribe() を実行すると解除される
+function TodoApp({ store }) {
+    const { task, tasks } = store.getState();
+    return (
+        <div>
+            <input type="text" onChange={(e) => store.dispatch(inputTask(e.target.value))} />
+            <input type="button" value="add" onClick={() => store.dispatch(addTask(task))} />
+            <ul>
+                {
+                    tasks.map(function(item, i) {
+                        return (
+                            <li key={i}>{item}</li>
+                        );
+                    })
+                }
+            </ul>
+        </div>
+    );
+}
 
-console.log("START !!");
-console.log(store.getState());
+function renderApp(store) {
+    render(
+        <TodoApp store={ store } />,
+        document.getElementById('root')
+    );
+}
 
-console.log("dispatch addTask");
-store.dispatch(addTask('Store を学ぶ'));
-
-store.replaceReducer(resetReducer);
-console.log(store.getState());
-
-const resetTask = () => ({
-    type: 'RESET_TASK'
-});
-store.dispatch(resetTask());
-console.log(store.getState());
-
-console.log("END !!");
+store.subscribe(() => renderApp(store));
+renderApp(store);
