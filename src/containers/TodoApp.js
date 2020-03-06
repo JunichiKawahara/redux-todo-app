@@ -2,7 +2,8 @@ import { connect } from 'react-redux';
 import TodoApp from '../components/TodoApp';
 import { inputTask, addTask } from '../actions/tasks';
 
-function mapStateToProps({ task, tasks }) {
+function mapStateToProps(state) {
+    const { task, tasks } = {...state.tasksReducer};
     return {
         task,
         tasks
